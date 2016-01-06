@@ -1,0 +1,27 @@
+{
+    "name": "mdzzohrabi/telegram-sdk",
+    "description": "Telegram PHP Sdk",
+    "type": "library",
+    "require": {
+        "guzzlehttp/guzzle": "^6.1"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^5.1",
+        "symfony/console": "^3.0"
+    },
+    "suggest": {
+        "symfony/console": "Allow you to run bot in your system"
+    },
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Masoud Zohrabi",
+            "email": "mdzzohrabi@gmail.com"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "Telegram\\": "src/Telegram"
+        }
+    }
+}
