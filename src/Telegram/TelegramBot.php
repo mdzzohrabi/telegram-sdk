@@ -19,6 +19,8 @@ use Telegram\Bot\Entity\ReplyInterface;
 use Telegram\Bot\Entity\Update;
 use Telegram\Bot\Entity\User;
 use Telegram\Bot\Entity\UserProfilePhotos;
+use Telegram\Bot\Middleware;
+use Telegram\Bot\UpdateEvent;
 
 /**
  * Class TelegramBot
@@ -55,6 +57,11 @@ class TelegramBot
      * @var Command
      */
     protected $notFoundCommand;
+
+    /**
+     * @var Middleware[]
+     */
+    protected $middleware = array();
 
     /**
      * @var string
@@ -181,6 +188,15 @@ class TelegramBot
      * @throws TelegramSDKException
      */
     public function handle( Update $update ) {
+
+        $event = new UpdateEvent( $update );
+
+        foreach ( $this->middleware as $middleware )
+            $middleware->handle( $event );
+
+        // Propagation stopped
+        if ( $event->isPropagationStopped() )
+            return false;
 
         foreach ( $this->getCommands()->getCommands() as $command ) {
             if ( $canHandle = $command->canHandle( $update ) ) {
@@ -475,6 +491,17 @@ class TelegramBot
     public function setNotFoundCommand( Command $notFoundCommand)
     {
         $this->notFoundCommand = $notFoundCommand;
+        return $this;
+    }
+
+    /**
+     * @param Middleware $middleware
+     * @return $this
+     */
+    public function middleware( Middleware $middleware )
+    {
+        $middleware->setBot( $this );
+        $this->middleware[] = $middleware;
         return $this;
     }
 
