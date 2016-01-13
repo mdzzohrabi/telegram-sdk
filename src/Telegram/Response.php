@@ -87,6 +87,8 @@ class Response
     }
 
     /**
+     * Status code
+     *
      * @return int
      */
     public function getStatusCode()
@@ -95,6 +97,8 @@ class Response
     }
 
     /**
+     * Response is ok ?
+     *
      * @return bool
      */
     public function isError() {
@@ -102,10 +106,21 @@ class Response
     }
 
     /**
+     * Response result
+     *
      * @return array
      */
     public function getResult() {
         return isset( $this->decodedBody['result'] ) ? $this->decodedBody['result'] : [];
+    }
+
+    /**
+     * Response description
+     *
+     * @return null
+     */
+    public function getDescription() {
+        return isset( $this->decodedBody['description'] ) ? $this->decodedBody['description'] : null;
     }
 
 }

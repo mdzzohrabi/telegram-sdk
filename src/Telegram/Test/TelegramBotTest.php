@@ -10,6 +10,7 @@ namespace Telegram\Test;
 
 use GuzzleHttp\Client;
 use GuzzleHttp\RequestOptions;
+use Telegram\Response;
 use Telegram\TelegramBot;
 
 /**
@@ -21,6 +22,7 @@ use Telegram\TelegramBot;
 class TelegramBotTest extends \PHPUnit_Framework_TestCase
 {
 
+    // MasoudDevBot
     const TOKEN = '176201674:AAF7H3NugaKjcdclObdK08npvkExZOI1ZPk';
 
     public function testGetMe() {
@@ -33,6 +35,8 @@ class TelegramBotTest extends \PHPUnit_Framework_TestCase
 
         $this->assertEquals( 'MasoudDevBot' , $bot->getMe()->getUsername() );
 
+        $this->assertInstanceOf( Response::class , $bot->removeWebhook() );
+        $this->assertFalse( $bot->removeWebhook()->isError() );
 
     }
 

@@ -139,7 +139,7 @@ class TelegramBot
      *
      * @link https://core.telegram.org/bots/api#setwebhook
      *
-     * @return Message
+     * @return Response
      * @throws TelegramSDKException
      */
     public function setWebhook( $url = null , $certificate = null ) {
@@ -147,15 +147,15 @@ class TelegramBot
         if ( filter_var($url,FILTER_VALIDATE_URL) === false )
             throw new TelegramSDKException( 'Invalid URL Provided' );
 
-        return $this->uploadFile( 'setWebhook' , [ 'url'    => $url, 'certificate'  => $certificate ] );
+        return $this->uploadFile( 'setWebhook' , [ 'url'    => $url, 'certificate'  => $certificate ] , false );
 
     }
 
     /**
-     * @return Message
+     * @return Response
      */
     public function removeWebhook() {
-        return $this->uploadFile( 'setWebhook' , [ 'url'    => '' ] );
+        return $this->uploadFile( 'setWebhook' , [ 'url'    => '' ] , false );
     }
 
     /**
@@ -215,10 +215,11 @@ class TelegramBot
     /**
      * @param       $endpoint
      * @param array $params
+     * @param bool  $transform
      * @return Message
      * @throws TelegramSDKException
      */
-    protected function uploadFile( $endpoint , array $params = [] ) {
+    protected function uploadFile( $endpoint , array $params = [] , $transform = true ) {
 
         $request_params = [];
 
@@ -238,7 +239,10 @@ class TelegramBot
 
         }
 
-        return DataTransformer::transform( $this->post( $endpoint , $request_params , true )->getResult() , Message::class );
+        if ( $transform )
+            return DataTransformer::transform( $this->post( $endpoint , $request_params , true )->getResult() , Message::class );
+        else
+            return $this->post( $endpoint , $request_params , true );
 
     }
 
