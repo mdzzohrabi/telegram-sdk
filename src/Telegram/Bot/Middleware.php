@@ -21,6 +21,10 @@ abstract class Middleware
 
     public abstract function handle( UpdateEvent $event );
 
+    public abstract function preSendMessage( PreSendEvent $event );
+
+    public abstract function preSendPhoto( PreSendPhotoEvent $event );
+
     /**
      * @return TelegramBot
      */

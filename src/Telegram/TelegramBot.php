@@ -20,6 +20,8 @@ use Telegram\Bot\Entity\Update;
 use Telegram\Bot\Entity\User;
 use Telegram\Bot\Entity\UserProfilePhotos;
 use Telegram\Bot\Middleware;
+use Telegram\Bot\PreSendEvent;
+use Telegram\Bot\PreSendPhotoEvent;
 use Telegram\Bot\UpdateEvent;
 
 /**
@@ -322,13 +324,18 @@ class TelegramBot
      */
     public function sendMessage( $chatId , $text , $parseMode = null , $disableWebPagePreview = null , $replyToMessageId = null , ReplyInterface $replyMarkup = null ) {
 
+        $event = new PreSendEvent( $chatId , $text , $replyToMessageId , $replyMarkup );
+
+        foreach ( $this->middleware as $middleware )
+            $middleware->preSendMessage( $event );
+
         return DataTransformer::transform( $this->post( 'sendMessage' , [
-            'chat_id'                   => $chatId,
-            'text'                      => $text,
+            'chat_id'                   => $event->getChatId(),
+            'text'                      => $event->getText(),
             'parseMode'                 => $parseMode,
             'disable_web_page_preview'  => $disableWebPagePreview,
-            'reply_to_message_id'       => $replyToMessageId,
-            'reply_markup'              => json_encode( DataTransformer::serialize( $replyMarkup ) )
+            'reply_to_message_id'       => $event->getReplyTo(),
+            'reply_markup'              => json_encode( DataTransformer::serialize( $event->getKeyboard() ) )
         ])->getResult() , Message::class );
 
     }
@@ -379,12 +386,17 @@ class TelegramBot
      */
     public function sendPhoto( $chatId , $photo , $caption = null , $replyToMessageId = null , ReplyInterface $replyMarkup = null ) {
 
+        $event = new PreSendPhotoEvent( $chatId , $photo , $caption , $replyToMessageId , $replyMarkup );
+
+        foreach ( $this->middleware as $middleware )
+            $middleware->preSendPhoto( $event );
+
         return $this->uploadFile( 'sendPhoto' , [
-            'chat_id'               => $chatId,
-            'photo'                 => $photo,
-            'caption'               => $caption,
-            'reply_to_message_id'   => $replyToMessageId,
-            'reply_markup'          => DataTransformer::serialize( $replyMarkup )
+            'chat_id'               => $event->getChatId(),
+            'photo'                 => $event->getPhoto(),
+            'caption'               => $event->getCaption(),
+            'reply_to_message_id'   => $event->getReplyTo(),
+            'reply_markup'          => DataTransformer::serialize( $event->getKeyboard() )
         ]);
 
     }
