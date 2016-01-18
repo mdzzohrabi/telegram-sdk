@@ -269,9 +269,15 @@ class DataTransformer
      * @param bool $allowNull
      * @return array
      */
-    public static function serialize( $object , $allowNull = false ) {
+    public static function serialize( $object , $allowNull = false )
+    {
 
-        if ( !is_object($object) )
+        if (is_array($object)) {
+            $result = [];
+            foreach ( $object as $k => $v )
+                $result[ $k ] = self::serialize( $v );
+            return $result;
+        } elseif ( !is_object($object) )
             return $object;
         else if ( $object instanceof \DateTime ) {
             return $object->format('c');

@@ -11,6 +11,7 @@ namespace Telegram\Test;
 use GuzzleHttp\Client;
 use GuzzleHttp\RequestOptions;
 use Telegram\Bot\Entity\InlineQueryResultArticle;
+use Telegram\DataTransformer;
 use Telegram\Response;
 use Telegram\TelegramBot;
 
@@ -64,6 +65,19 @@ class TelegramBotTest extends \PHPUnit_Framework_TestCase
                 new InlineQueryResultArticle( 1 , 'Title' , 'Body' )
             ]
         );
+
+    }
+
+    public function testInlineResults() {
+
+        $results = [
+            new InlineQueryResultArticle( 1 , 'A' , 'B' )
+        ];
+
+        $res = DataTransformer::serialize( $results );
+
+        $this->assertEquals( 'A', $res[0]['title'] );
+
 
     }
 
