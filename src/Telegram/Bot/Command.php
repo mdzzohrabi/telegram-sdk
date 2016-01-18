@@ -38,6 +38,8 @@ abstract class Command
 
     public function canHandle( Update $update ) {
 
+        if ( $update->getMessage() === null ) return false;
+
         $text = trim( $update->getMessage()->getText() , "\t\n\r\\" );
 
         if ( $this->getName() == $text || $this->getAlias() == $text )
