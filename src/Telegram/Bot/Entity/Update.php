@@ -34,6 +34,18 @@ class Update
     protected $message;
 
     /**
+     * Optional. New incoming inline query
+     * @var InlineQuery
+     */
+    protected $inlineQuery;
+
+    /**
+     * Optional. The result of an inline query that was chosen by a user and sent to their chat partner.
+     * @var ChosenInlineResult
+     */
+    protected $chosenInlineResult;
+
+    /**
      * @return int
      */
     public function getUpdateId()

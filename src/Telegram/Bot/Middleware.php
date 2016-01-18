@@ -25,6 +25,8 @@ abstract class Middleware
 
     public abstract function preSendPhoto( PreSendPhotoEvent $event );
 
+    public abstract function preInlineQueryAnswer( PreInlineQueryAnswerEvent $event );
+
     /**
      * @return TelegramBot
      */
