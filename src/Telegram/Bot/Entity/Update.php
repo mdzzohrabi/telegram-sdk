@@ -91,4 +91,42 @@ class Update
         return $this->getMessage()->getChat()->getId();
     }
 
+    /**
+     * @return InlineQuery
+     */
+    public function getInlineQuery()
+    {
+        return $this->inlineQuery;
+    }
+
+    /**
+     * @param InlineQuery $inlineQuery
+     * @return Update
+     */
+    public function setInlineQuery($inlineQuery)
+    {
+        $this->inlineQuery = $inlineQuery;
+
+        return $this;
+    }
+
+    /**
+     * @return ChosenInlineResult
+     */
+    public function getChosenInlineResult()
+    {
+        return $this->chosenInlineResult;
+    }
+
+    /**
+     * @param ChosenInlineResult $chosenInlineResult
+     * @return Update
+     */
+    public function setChosenInlineResult($chosenInlineResult)
+    {
+        $this->chosenInlineResult = $chosenInlineResult;
+
+        return $this;
+    }
+
 }
