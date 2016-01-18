@@ -398,7 +398,7 @@ class TelegramBot
             'photo'                 => $event->getPhoto(),
             'caption'               => $event->getCaption(),
             'reply_to_message_id'   => $event->getReplyTo(),
-            'reply_markup'          => DataTransformer::serialize( $event->getKeyboard() )
+            'reply_markup'          => json_encode( DataTransformer::serialize( $event->getKeyboard() ) )
         ]);
 
     }
@@ -457,7 +457,7 @@ class TelegramBot
 
         return $this->post('answerInlineQuery',[
             'inline_query_id'   => $event->getInlineQueryId(),
-            'results'           => DataTransformer::serialize( $event->getResults() ),
+            'results'           => json_encode( DataTransformer::serialize( $event->getResults() ) ),
             'cache_time'        => $event->getCacheTime(),
             'is_personal'       => $event->isIsPersonal(),
             'next_offset'       => $event->getNextOffset()
