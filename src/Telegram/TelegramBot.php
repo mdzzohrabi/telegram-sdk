@@ -73,6 +73,12 @@ class TelegramBot
     protected $log;
 
     /**
+     * Throw update handling exceptions
+     * @var bool
+     */
+    protected $throwExceptions = false;
+
+    /**
      * TelegramBot constructor.
      *
      * @param string $apiToken
@@ -522,7 +528,14 @@ class TelegramBot
                     $this->handle($update);
 
             } catch ( \Exception $e ) {
-                $this->log( 'Exception(' . $e->getCode() . ') : ' . $e->getMessage() . ' on ' . $e->getFile() . '(' . $e->getLine() . ')');
+                if ( $this->throwExceptions ) {
+                    throw $e;
+                } else {
+                    $this->log(
+                        'Exception('.$e->getCode().') : '.$e->getMessage().' on '.$e->getFile().'('.$e->getLine().')' . "\n" .
+                        $e->getTraceAsString()
+                    );
+                }
             }
         }
 
@@ -588,6 +601,22 @@ class TelegramBot
         $middleware->setBot( $this );
         $this->middleware[] = $middleware;
         return $this;
+    }
+
+    /**
+     * @return boolean
+     */
+    public function isThrowExceptions()
+    {
+        return $this->throwExceptions;
+    }
+
+    /**
+     * @param boolean $throwExceptions
+     */
+    public function setThrowExceptions($throwExceptions)
+    {
+        $this->throwExceptions = $throwExceptions;
     }
 
 
