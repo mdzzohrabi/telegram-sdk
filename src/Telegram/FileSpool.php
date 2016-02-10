@@ -191,6 +191,8 @@ class FileSpool
                     $this->getBot()->post($message['endpoint'], $params, $fileUpload);
                 } catch ( Exception $e ) {
 
+                    $this->bot->log( '[Spool] Exception : ' . $e->getMessage() );
+
                     if ( $this->bot->isThrowExceptions() )
                         throw $e;
 
