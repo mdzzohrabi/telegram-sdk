@@ -309,11 +309,18 @@ class TelegramBot
             if ( $this->spool == null )
                 throw new \Exception(sprintf('Spool path must be specified.'));
 
-            if ( !$this->spool->queueMessage( $endpoint, $params, $fileUpload ) ) {
+            if ( !$messageId = $this->spool->queueMessage( $endpoint, $params, $fileUpload ) ) {
                 throw new \Exception(sprintf('Error due to queue message.'));
             }
 
-            return new Response( new GuzzleResponse( 200 , [] , serialize([ 'ok'  => true ]) ) );
+            return new Response( new GuzzleResponse( 200 , [] , serialize([
+                'ok'         => true,
+                'spool_id'   => $messageId,
+                'result'     => [
+                    'spool_id'  => $messageId
+                ],
+                'spooled'    => true
+            ])));
 
         }
 

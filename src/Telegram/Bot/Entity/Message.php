@@ -183,6 +183,12 @@ class Message
     protected $migrateFromChatId;
 
     /**
+     * Spool id
+     * @var string|null
+     */
+    protected $spoolId;
+
+    /**
      * @return int
      */
     public function getMessageId()
@@ -693,6 +699,22 @@ class Message
         $this->migrateFromChatId = $migrateFromChatId;
 
         return $this;
+    }
+
+    /**
+     * @return null|string
+     */
+    public function getSpoolId()
+    {
+        return $this->spoolId;
+    }
+
+    /**
+     * @param null|string $spoolId
+     */
+    public function setSpoolId($spoolId)
+    {
+        $this->spoolId = $spoolId;
     }
 
 }

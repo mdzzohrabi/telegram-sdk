@@ -117,7 +117,10 @@ class FileSpool
 
         $messageId = 'message-' . $priority . '-' . md5(microtime(true));
 
-        return file_put_contents( $this->path . '/' . $messageId , $data ) !== false;
+        if ( file_put_contents( $this->path . '/' . $messageId , $data ) === false )
+            return false;
+
+        return $messageId;
 
     }
 
@@ -242,10 +245,12 @@ class FileSpool
 
     /**
      * @param int $limit
+     * @return $this
      */
     public function setLimit($limit)
     {
         $this->limit = $limit;
+        return $this;
     }
 
     /**
@@ -258,10 +263,12 @@ class FileSpool
 
     /**
      * @param int $delay
+     * @return $this
      */
     public function setDelay($delay)
     {
         $this->delay = $delay;
+        return $this;
     }
 
 }

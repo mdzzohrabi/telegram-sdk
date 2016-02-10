@@ -123,4 +123,20 @@ class Response
         return isset( $this->decodedBody['description'] ) ? $this->decodedBody['description'] : null;
     }
 
+    /**
+     * Get spool id
+     * @return null|string
+     */
+    public function getSpoolId() {
+        return isset( $this->decodedBody['spool_id'] ) ? $this->decodedBody['spool_id'] : null;
+    }
+
+    /**
+     * is message spooled
+     * @return null|bool
+     */
+    public function isSpooled() {
+        return isset( $this->decodedBody['spooled'] ) ? $this->decodedBody['spooled'] : null;
+    }
+
 }
