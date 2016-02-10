@@ -12,6 +12,7 @@ use GuzzleHttp\Client;
 use GuzzleHttp\RequestOptions;
 use Telegram\AbstractBot;
 use Telegram\Bot\Entity\InlineQueryResultArticle;
+use Telegram\Bot\Entity\InputFile;
 use Telegram\Bot\Entity\ReplyKeyboardMarkup;
 use Telegram\Bot\Entity\Update;
 use Telegram\DataTransformer;
@@ -120,6 +121,7 @@ class TelegramBotTest extends \PHPUnit_Framework_TestCase
         $bot = new TelegramBot( self::TOKEN , $client );
 
         $bot
+            ->setThrowExceptions(true)
             ->setSendMode( TelegramBot::SEND_TYPE_SPOOL )
             ->setSpoolPath( __DIR__ . '/tmp' )
         ;
@@ -127,6 +129,8 @@ class TelegramBotTest extends \PHPUnit_Framework_TestCase
         $bot->sendMessage( 12 , 'My Message' , null , null , 100 , new ReplyKeyboardMarkup([
             '1','2','3'
         ]) );
+
+        $bot->sendPhoto( 10 , 'http://www.unserialize.com/images/logo.png' , 'Test' );
 
         $bot->getSpool()->flushQueue();
 

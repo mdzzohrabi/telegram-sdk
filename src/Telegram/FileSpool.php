@@ -94,13 +94,14 @@ class FileSpool
      * @param            $endpoint
      * @param            $params
      * @param bool|false $hasFile
-     * @return bool      False on failure
+     * @param int        $priority
+     * @return bool False on failure
      */
-    public function queueMessage( $endpoint , $params , $hasFile = false ) {
+    public function queueMessage( $endpoint , $params , $hasFile = false, $priority = 0 ) {
 
         if ( $hasFile )
             foreach ( $params as &$param ) {
-                list( $name , $contents ) = $param;
+                $contents = $param['contents'];
                 if ( is_resource( $contents ) ) {
                     $meta = stream_get_meta_data( $contents );
                     $uri = $meta['uri'];
@@ -114,9 +115,35 @@ class FileSpool
             'params'    => $params
         ]);
 
-        $messageId = 'message-' . $this->generateId();
+        $messageId = 'message-' . $priority . '-' . md5(microtime(true));
 
         return file_put_contents( $this->path . '/' . $messageId , $data ) !== false;
+
+    }
+
+    public function getQueue() {
+
+        $messages = glob( $this->path . '/message-*' );
+
+        $queue = [];
+
+        $sortName = [];
+        $sortDate = [];
+        $count = 0;
+
+        foreach ( $messages as $message ) {
+
+            $file = new \SplFileInfo( $message );
+
+            $sortName[ $count ] = $file->getFilename();
+            $sortDate[ $count ] = $file->getCTime();
+
+            $queue[ $count++ ] = $message;
+        }
+
+        array_multisort( $sortDate , SORT_ASC , $sortName , SORT_ASC , $queue );
+
+        return $queue;
 
     }
 
@@ -125,11 +152,13 @@ class FileSpool
         $sendMode = $this->bot->getSendMode();
         $this->bot->setSendMode( TelegramBot::SEND_TYPE_DIRECT );
 
-        $directoryIterator = new \DirectoryIterator( $this->path );
+        $directoryIterator = $this->getQueue();
 
         $count = 0;
 
         foreach ( $directoryIterator as $file ) {
+
+            $file = new \SplFileInfo( $file );
 
             // Ignore none-message files
             if ( substr( $file->getFilename() , 0 , strlen('Message') ) != 'message' ) continue;
@@ -155,9 +184,16 @@ class FileSpool
                     $params[ $i ] = $param;
                 }
 
-                $this->getBot()->post( $message['endpoint'] , $params , $fileUpload );
+                try {
+                    $this->getBot()->post($message['endpoint'], $params, $fileUpload);
+                } catch ( Exception $e ) {
 
-                unlink( $newFile );
+                    if ( $this->bot->isThrowExceptions() )
+                        throw $e;
+
+                } finally {
+                    unlink( $newFile );
+                }
 
                 $count++;
 
