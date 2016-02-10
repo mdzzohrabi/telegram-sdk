@@ -10,6 +10,7 @@ namespace Telegram;
 
 use GuzzleHttp\Client;
 use GuzzleHttp\RequestOptions;
+use GuzzleHttp\Psr7\Response as GuzzleResponse;
 use Telegram\Bot\Command;
 use Telegram\Bot\Commands;
 use Telegram\Bot\Entity\File;
@@ -34,6 +35,17 @@ use Telegram\Bot\UpdateEvent;
  */
 class TelegramBot
 {
+
+    /**
+     * Direct send mode
+     */
+    const SEND_TYPE_DIRECT = 0x001;
+
+    /**
+     * Spooling mode
+     */
+    const SEND_TYPE_SPOOL = 0x002;
+
 
     /**
      * Telegram Api Base Url
@@ -77,6 +89,17 @@ class TelegramBot
      * @var bool
      */
     protected $throwExceptions = false;
+
+    /**
+     * Send mode
+     * @var int
+     */
+    protected $sendMode = self::SEND_TYPE_DIRECT;
+
+    /**
+     * @var FileSpool|null
+     */
+    protected $spool;
 
     /**
      * TelegramBot constructor.
@@ -277,8 +300,22 @@ class TelegramBot
      * @param array      $params
      * @param bool|false $fileUpload
      * @return Response
+     * @throws \Exception
      */
-    protected function post( $endpoint , array $params = [] , $fileUpload = false ) {
+    public function post( $endpoint , array $params = [] , $fileUpload = false ) {
+
+        if ( $this->sendMode == self::SEND_TYPE_SPOOL && in_array( $endpoint , [ 'sendMessage' , 'sendPhoto' , 'forwardMessage' ] ) ) {
+
+            if ( $this->spool == null )
+                throw new \Exception(sprintf('Spool path must be specified.'));
+
+            if ( !$this->spool->queueMessage( $endpoint, $params, $fileUpload ) ) {
+                throw new \Exception(sprintf('Error due to queue message.'));
+            }
+
+            return new Response( new GuzzleResponse( 200 , [] , serialize([ 'ok'  => true ]) ) );
+
+        }
 
         if ( $fileUpload )
             $params = [ RequestOptions::MULTIPART => $params ];
@@ -495,9 +532,10 @@ class TelegramBot
     /**
      * Handle updates
      *
-     * @param bool|false  $webHook          true if updates come from web hook
-     * @param AbstractBot $bot              Bot
+     * @param bool|false  $webHook true if updates come from web hook
+     * @param AbstractBot $bot     Bot
      * @return array|Bot\Entity\Update[]
+     * @throws \Exception
      */
     public function handleUpdates( $webHook = false , AbstractBot $bot = null )
     {
@@ -560,14 +598,17 @@ class TelegramBot
      * Write log
      *
      * @param $message
+     * @return $this
      */
     public function log( $message ) {
 
         if ( !$this->log )
-            return;
+            return $this;
 
         $message = '[' . date('c') . '] ' . $message . "\n";
         file_put_contents( $this->log , file_get_contents( $this->log ) . $message );
+
+        return $this;
 
     }
 
@@ -613,10 +654,46 @@ class TelegramBot
 
     /**
      * @param boolean $throwExceptions
+     * @return $this
      */
     public function setThrowExceptions($throwExceptions)
     {
         $this->throwExceptions = $throwExceptions;
+        return $this;
+    }
+
+    /**
+     * @return int
+     */
+    public function getSendMode()
+    {
+        return $this->sendMode;
+    }
+
+    /**
+     * @param int $sendMode
+     * @return $this
+     */
+    public function setSendMode($sendMode)
+    {
+        $this->sendMode = $sendMode;
+        return $this;
+    }
+
+    /**
+     * @param $path
+     * @return $this
+     */
+    public function setSpoolPath( $path ) {
+        $this->spool = new FileSpool( $this, $path );
+        return $this;
+    }
+
+    /**
+     * @return null|FileSpool
+     */
+    public function getSpool() {
+        return $this->spool;
     }
 
 
