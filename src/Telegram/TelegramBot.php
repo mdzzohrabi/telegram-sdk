@@ -313,14 +313,16 @@ class TelegramBot
                 throw new \Exception(sprintf('Error due to queue message.'));
             }
 
-            return new Response( new GuzzleResponse( 200 , [] , serialize([
+            $response = new Response( json_encode([
                 'ok'         => true,
                 'spool_id'   => $messageId,
                 'result'     => [
                     'spool_id'  => $messageId
                 ],
                 'spooled'    => true
-            ])));
+            ]) );
+
+            return $response;
 
         }
 

@@ -45,7 +45,7 @@ class Response
     /**
      * Response constructor.
      *
-     * @param ResponseInterface $response
+     * @param ResponseInterface|string $response
      */
     public function __construct( $response )
     {
@@ -55,6 +55,10 @@ class Response
             $this->statusCode = $response->getStatusCode();
             $this->body = $response->getBody();
             $this->headers = $response->getHeaders();
+
+        } elseif ( is_string( $response ) ) {
+
+            $this->body = $response;
 
         }
 

@@ -126,11 +126,15 @@ class TelegramBotTest extends \PHPUnit_Framework_TestCase
             ->setSpoolPath( __DIR__ . '/tmp' )
         ;
 
-        $bot->sendMessage( 12 , 'My Message' , null , null , 100 , new ReplyKeyboardMarkup([
+        $spoolId = $bot->sendMessage( 12 , 'My Message' , null , null , 100 , new ReplyKeyboardMarkup([
             '1','2','3'
-        ]) );
+        ]) )->getSpoolId();
 
-        $bot->sendPhoto( 10 , 'http://www.unserialize.com/images/logo.png' , 'Test' );
+        $this->assertStringStartsWith( 'message-' , $spoolId );
+
+        $spoolId = $bot->sendPhoto( 10 , 'http://www.unserialize.com/images/logo.png' , 'Test' )->getSpoolId();
+
+        $this->assertStringStartsWith( 'message-' , $spoolId );
 
         $bot->getSpool()->flushQueue();
 
